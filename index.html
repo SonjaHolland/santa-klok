@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Santa Clock</title>
+<style>
+    body {
+        margin: 0;
+        background: transparent;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
+    }
+    canvas {
+        background: transparent;
+    }
+</style>
+</head>
+<body>
+
+<canvas id="clock" width="400" height="400"></canvas>
+
+<script>
+const canvas = document.getElementById("clock");
+const ctx = canvas.getContext("2d");
+const radius = canvas.width / 2;
+
+ctx.translate(radius, radius);
+
+// Load Santa image
+const santaImg = new Image();
+santaImg.src = "https://i.imgur.com/UUByRIr.png";
+
+// Snow particles
+const snowflakes = [];
+for (let i = 0; i < 100; i++) {
+    snowflakes.push({
+        x: Math.random() * canvas.width - radius,
+        y: Math.random() * canvas.height - radius,
+        r: Math.random() * 2 + 1,
+        d: Math.random() + 1
+    });
+}
+
+function drawSnow() {
+    ctx.save();
+    ctx.fillStyle = "rgba(255,255,255,0.8)";
+    ctx.beginPath();
+    snowflakes.forEach(flake => {
+        ctx.moveTo(flake.x, flake.y);
+        ctx.arc(flake.x, flake.y, flake.r, 0, Math.PI * 2);
+    });
+    ctx.fill();
+    ctx.restore();
+}
+
+function updateSnow() {
+    snowflakes.forEach(flake => {
+        flake.y += flake.d;
+        if (flake.y > radius) {
+            flake.y = -radius;
+            flake.x = Math.random() * canvas.width - radius;
+        }
+    });
+}
+
+// Green background circle
+function drawGreenBackground() {
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.95, 0, Math.PI * 2);
+    ctx.fillStyle = "#0b5d3b";
+    ctx.fill();
+}
+
+// Gold outline ring
+function drawGoldRing() {
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.95, 0, Math.PI * 2);
+    ctx.lineWidth = 10;
+    ctx.strokeStyle = "gold";
+    ctx.stroke();
+}
+
+// Draw Santa face
+function drawFace() {
+    const imgRadius = radius * 0.65;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(0, 0, imgRadius, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(
+        santaImg,
+        -imgRadius,
+        -imgRadius,
+        imgRadius * 2,
+        imgRadius * 2
+    );
+    ctx.restore();
+}
+
+// Clock numbers
+function drawNumbers() {
+    ctx.font = "20px Arial";
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "white";
+
+    for (let num = 1; num <= 12; num++) {
+        const angle = num * Math.PI / 6;
+        ctx.rotate(angle);
+        ctx.translate(0, -radius * 0.82);
+        ctx.rotate(-angle);
+        ctx.fillText(num.toString(), 0, 0);
+        ctx.rotate(angle);
+        ctx.translate(0, radius * 0.82);
+        ctx.rotate(-angle);
+    }
+}
+
+// Clock hands
+function drawHand(angle, length, width, color) {
+    ctx.beginPath();
+    ctx.lineWidth = width;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = color;
+    ctx.moveTo(0, 0);
+    ctx.rotate(angle);
+    ctx.lineTo(0, -length);
+    ctx.stroke();
+    ctx.rotate(-angle);
+}
+
+function drawClock() {
+    ctx.clearRect(-radius, -radius, canvas.width, canvas.height);
+
+    drawGreenBackground();
+    drawFace();
+    drawNumbers();
+    drawGoldRing();
+
+    const now = new Date();
+    const hour = now.getHours() % 12;
+    const minute = now.getMinutes();
+    const second = now.getSeconds();
+
+    const hourAngle = (hour * Math.PI / 6) + (minute * Math.PI / 360);
+    const minuteAngle = (minute * Math.PI / 30) + (second * Math.PI / 1800);
+    const secondAngle = second * Math.PI / 30;
+
+    drawHand(hourAngle, radius * 0.4, 8, "gold");
+    drawHand(minuteAngle, radius * 0.6, 6, "gold");
+    drawHand(secondAngle, radius * 0.7, 2, "#c00000");
+
+    // Center dot                                                                                                      
+    ctx.beginPath();
+    ctx.arc(0, 0, 6, 0, Math.PI * 2);
+    ctx.fillStyle = "gold";
+    ctx.fill();
+
+    drawSnow();
+    updateSnow();
+}
+
+// Start clock
+santaImg.onload = () => {
+    setInterval(drawClock, 1000 / 30);
+};
+</script>
+
+</body>
+</html>
