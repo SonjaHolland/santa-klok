@@ -33,39 +33,6 @@ ctx.translate(radius, radius);
 const santaImg = new Image();
 santaImg.src = "https://i.imgur.com/UUByRIr.png";
 
-// Snow particles
-const snowflakes = [];
-for (let i = 0; i < 100; i++) {
-    snowflakes.push({
-        x: Math.random() * canvas.width - radius,
-        y: Math.random() * canvas.height - radius,
-        r: Math.random() * 2 + 1,
-        d: Math.random() + 1
-    });
-}
-
-function drawSnow() {
-    ctx.save();
-    ctx.fillStyle = "rgba(255,255,255,0.8)";
-    ctx.beginPath();
-    snowflakes.forEach(flake => {
-        ctx.moveTo(flake.x, flake.y);
-        ctx.arc(flake.x, flake.y, flake.r, 0, Math.PI * 2);
-    });
-    ctx.fill();
-    ctx.restore();
-}
-
-function updateSnow() {
-    snowflakes.forEach(flake => {
-        flake.y += flake.d;
-        if (flake.y > radius) {
-            flake.y = -radius;
-            flake.x = Math.random() * canvas.width - radius;
-        }
-    });
-}
-
 // Green background circle
 function drawGreenBackground() {
     ctx.beginPath();
@@ -154,14 +121,11 @@ function drawClock() {
     drawHand(minuteAngle, radius * 0.6, 6, "gold");
     drawHand(secondAngle, radius * 0.7, 2, "#c00000");
 
-    // Center dot                                                                                                      
+    // Center dot
     ctx.beginPath();
     ctx.arc(0, 0, 6, 0, Math.PI * 2);
     ctx.fillStyle = "gold";
     ctx.fill();
-
-    drawSnow();
-    updateSnow();
 }
 
 // Start clock
